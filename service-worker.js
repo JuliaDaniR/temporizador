@@ -3,18 +3,19 @@
 self.addEventListener('install', (event) => {
   console.log('Service Worker instalado');
   event.waitUntil(
-    caches.open('cache-v1').then((cache) => {
-      return cache.addAll([
-        './',
-        './index.html',
-        './style.css',
-        './script.js',
-        './icons/icon-192x192.png',
-        './icons/icon-512x512.png'
-      ]);
-    })
+      caches.open('cache-v1').then((cache) => {
+          return cache.addAll([
+              './',
+              './index.html',
+              './style.css',
+              './script.js',
+              './icons/temporizador.png',
+              './icons/temporizador1.png'
+          ]);
+      })
   );
 });
+
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
