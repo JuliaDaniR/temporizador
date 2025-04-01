@@ -1,0 +1,21 @@
+{
+  "name": "Contador de Uso del Celular",
+  "short_name": "Contador",
+  "description": "Una aplicación para controlar el tiempo de uso del celular.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ff6f61",
+  "theme_color": "#ff6f61",
+  "icons": [
+    {
+      "src": "icons/temporizador1.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/temporizador.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

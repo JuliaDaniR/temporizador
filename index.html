@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador de Tiempo de Uso</title>
+      <!-- Referencia al manifest.json -->
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            text-align: center;
+            background: radial-gradient(circle, #1f5346, #1e9872);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .timer {
+            font-size: 5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #ffeb3b;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        button {
+            font-size: 1.5rem;
+            padding: 15px 30px;
+            margin: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 12px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease-in-out;
+            width: 80%;
+        }
+        .start { background-color: #4CAF50; color: white; }
+        .reset { background-color: #F44336; color: white; }
+        .start:hover, .reset:hover {
+            transform: scale(1.1);
+        }
+        .start:active, .reset:active {
+            transform: scale(0.9);
+        }
+        /* Estilo para la rueda de progreso */
+        .circle-container {
+            position: relative;
+            margin: 0 auto;
+            width: 250px;
+            height: 250px;
+            background: conic-gradient(#4CAF50 0%, #4CAF50 0%, #F44336 0%, #F44336 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        .circle-text {
+            font-size: 2rem;
+            color: #fff;
+        }
+        .bubbles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background-color: #ffeb3b;
+            opacity: 0.8;
+            animation: bubbleAnimation 6s ease-in-out infinite;
+        }
+        @keyframes bubbleAnimation {
+            0% { transform: translateY(100vh); opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-50vh); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Uso del Celular Franco</h1>
+        <div class="circle-container" id="circleProgress">
+            <div class="circle-text" id="timer">00:00:00</div>
+        </div>
+        <div class="buttons">
+            <button class="start" onclick="startTimer()">Iniciar</button>
+            <button class="reset" onclick="resetTimer()">Reiniciar</button>
+        </div>
+    </div>
+    <div class="bubbles" id="bubbles"></div>
+    <script>
+        let seconds = 0, minutes = 0, hours = 0;
+        let timerInterval;
+        let isRunning = false;
+        let maxHours = 5;
+        let totalSeconds = maxHours * 60 * 60; // 4 horas en segundos
+
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                timerInterval = setInterval(updateTimer, 1000);
+                createBubbles();
+            }
+        }
+
+        function resetTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            seconds = 0; minutes = 0; hours = 0;
+            totalSeconds = maxHours * 60 * 60;
+            updateDisplay();
+            updateProgress();
+            resetBubbles();
+        }
+
+        function updateTimer() {
+            if (totalSeconds > 0) {
+                totalSeconds--;
+                seconds++;
+                if (seconds === 60) { seconds = 0; minutes++; }
+                if (minutes === 60) { minutes = 0; hours++; }
+                updateDisplay();
+                updateProgress();
+            } else {
+                clearInterval(timerInterval);
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('timer').textContent = 
+                (hours < 10 ? "0" : "") + hours + ":" + 
+                (minutes < 10 ? "0" : "") + minutes + ":" + 
+                (seconds < 10 ? "0" : "") + seconds;
+        }
+
+        function updateProgress() {
+            const progress = (1 - totalSeconds / (maxHours * 60 * 60)) * 100;
+            // Actualizar gradiente: 100% verde al principio, luego se convierte en rojo
+            const green = 100 - progress;
+            document.getElementById('circleProgress').style.background = 
+                `conic-gradient(#4CAF50 ${green}%, #F44336 ${green}% 100%)`;
+        }
+
+        function createBubbles() {
+            const bubblesContainer = document.getElementById('bubbles');
+            for (let i = 0; i < 20; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+                bubble.style.width = `${Math.random() * 50 + 20}px`;
+                bubble.style.height = bubble.style.width;
+                bubble.style.left = `${Math.random() * 100}%`;
+                bubble.style.animationDuration = `${Math.random() * 3 + 3}s`;
+                bubblesContainer.appendChild(bubble);
+            }
+        }
+
+        function resetBubbles() {
+            const bubblesContainer = document.getElementById('bubbles');
+            bubblesContainer.innerHTML = '';
+        }
+
+         // Comprobamos si el navegador soporta service workers
+         if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker registrado con éxito:', registration);
+                })
+                .catch(error => {
+                    console.log('Error al registrar el Service Worker:', error);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+
